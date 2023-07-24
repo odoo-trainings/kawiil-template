@@ -9,7 +9,7 @@
     'author':'team7',
     'website':'www.odoo.com',
     'category':'Kawiil/Admin',
-    'depends':['stock', 'website', 'motorcycle_registry'],
+    'depends':['website', 'motorcycle_registry'],
     'data':[],
     'demo':[],
     'application': True,
