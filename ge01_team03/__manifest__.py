@@ -27,6 +27,6 @@ This Module is used to automatically filter products to show only products of mo
     
     "website": "www.odoo.com",
     
-    "application": True,
+    "application": False,
     
 }
