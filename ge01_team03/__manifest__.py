@@ -15,7 +15,7 @@ This Module is used to automatically filter products to show only products of mo
     
     "license": "OPL-1",
     
-    "depends": ["stock", "website", "sale","motorcycle_registry"],
+    "depends": ["base","stock", "website", "sale","motorcycle_registry"],
     
     "data": ['views/product_template_inherit.xml',
     ],
