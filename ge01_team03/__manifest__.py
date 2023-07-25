@@ -5,7 +5,7 @@
     
     "description": """
     Motorcycle Filter
-====================
+
 This Module is used to automatically filter products to show only products of motorcycle type.
     """,
     
