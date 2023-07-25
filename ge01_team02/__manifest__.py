@@ -6,7 +6,7 @@
     "version": "0.1",
     "category": "Kauil/Registry",
     "license": "OPL-1",
-    "depends": ["motorcycle_registry", "product"],
+    "depends": ["motorcycle_registry", "sale"],
     "data": [
         "views/product_template_search_inherit.xml",
     ],
