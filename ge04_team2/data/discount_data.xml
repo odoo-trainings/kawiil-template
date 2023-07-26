@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<odoo>
+    <data noupdate="1">
+        <record id="discount_first_purchase" model="product.pricelist">
+            <field name="name">Discount first purchase</field> 
+        </record>
+        <record id="items_discount_first_purchase" model="product.pricelist.item">
+            <field name="pricelist_id" ref="discount_first_purchase"/>
+            <field name="compute_price">formula</field>
+            <field name="price_surcharge">-2500</field>
+        </record>
+    </data>
+</odoo>
