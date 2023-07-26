@@ -6,7 +6,7 @@
     'author':'team7',
     'website':'www.odoo.com',
     'category':'Kawiil/Admin',
-    'depends':['sale_stock','sale'],
+    'depends':['sale_stock','sale','mrp','motorcycle_registry'],
     'data':[],
     'demo':[],
     'application': True,
