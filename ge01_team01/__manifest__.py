@@ -12,7 +12,7 @@ This Module is used to add a filter for products based on 'detailet_type' field,
     "version": "0.1",
     "category": "Kauil/Training",
     "license": "OPL-1",
-    "depends": ["stock"],
+    "depends": ["stock", "sale"],
     "data": [
         "views/product_template_inherit.xml",
         "views/product_views_inherit.xml",
