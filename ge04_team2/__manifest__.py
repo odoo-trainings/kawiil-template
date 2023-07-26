@@ -9,7 +9,7 @@ This Module is used to show a discount when a new customer purchase a motorcycle
     "version": "0.1",
     "category": "Kauil/Discount",
     "license": "OPL-1",
-    "depends": ["sale"],
+    "depends": ["sale_management"],
 
     "data": [
         'data/discount_data.xml',
