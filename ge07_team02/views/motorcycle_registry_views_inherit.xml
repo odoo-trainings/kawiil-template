@@ -14,4 +14,18 @@
 
         </field>
     </record>
+
+    <record id="motorcycle_registry_template_product_list_inherit_ge07" model="ir.ui.view">
+        <field name="name">motorcycle.registry.view.list.inherit.ge07</field>
+        <field name="model">motorcycle.registry</field>
+        <field name="inherit_id" ref="motorcycle_registry.motorcycle_registry_view_list"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='owner_id']" position="after">
+                <field name="stock_lot_ids"/>
+            </xpath>
+
+        </field>
+    </record>
+
 </odoo>
