@@ -6,23 +6,16 @@ class SaleOrder(models.Model):
 
     is_new_customer = fields.Boolean(compute="_compute_first_purchase")
 
-    def _calculate_is_new_customer(self, customer):
-        is_new_customer = True
-        partner = customer.partner_id.id
-        sale_orders = self.env['sale.order'].search(
-            [('partner_id', '=', partner)])
-        order_lines = sale_orders.filtered(
-            lambda r: r.type_name == 'Sales Order').mapped('order_line')
-        products = order_lines.mapped('product_id')
-        for i in products:
-            if i.detailed_type == "motorcycle":
-                is_new_customer = False
-        return is_new_customer
-
     @api.depends('partner_id')
     def _compute_first_purchase(self):
         for record in self:
-            record.is_new_customer = self._calculate_is_new_customer(record)
+            sale_orders = self.env['sale.order'].search(
+                [('partner_id', '=', record.partner_id.id)])
+            order_lines = sale_orders.filtered(
+                lambda r: r.state == 'sale').mapped('order_line')
+            record.is_new_customer = False if len(order_lines.mapped('product_id').filtered(
+                lambda product: product.detailed_type == 'motorcycle'
+            )) > 0 else True
 
     def change_pricelist(self):
         for record in self:
