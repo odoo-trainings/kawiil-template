@@ -1,1 +1,1 @@
-from . import ge03_team2
+from . import product_template
