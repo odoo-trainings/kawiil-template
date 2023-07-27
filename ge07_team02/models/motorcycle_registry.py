@@ -11,6 +11,12 @@ class MotorcycleRegistry(models.Model):
         string='Stock Lots'
     )
 
+    stock_name = fields.Char(
+        related='stock_lot_ids.name'
+    )
+
+    sale_order = fields.Many2one('sale.order', string='Sale Order', readonly=True)
+
     @api.constrains('vin')
     def _check_vin_pattern(self):
         pattern = '^[A-Z]{4}\d{2}[A-Za-z0-9]{2}\d{5}$'

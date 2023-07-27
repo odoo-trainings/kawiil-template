@@ -7,8 +7,13 @@
         <field name="arch" type="xml">
 
             <xpath expr="//page" position="after">
-                <page string="Stock Info">
-                    <field name="stock_lot_ids" />
+                <page attrs="{'invisible': ''}" string="Motorcycle Tracking Info">
+                    <group>
+                        <separator string="Stock Info" />
+                        <field name="stock_name" />
+                        <separator string="Sales Info"/>
+                        <field name="sale_order"/>
+                    </group>
                 </page>
             </xpath>
 
@@ -22,7 +27,8 @@
         <field name="arch" type="xml">
 
             <xpath expr="//field[@name='owner_id']" position="after">
-                <field name="stock_lot_ids"/>
+                <field name="stock_name"/>
+                <field name="sale_order"/>
             </xpath>
 
         </field>
