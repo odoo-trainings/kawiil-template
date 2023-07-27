@@ -4,9 +4,12 @@
     "description": """
     Motorcycle Discount
 ====================
-This Module is used to show a discount when a new customer purchase a motorcycle in them first time.
+This Module creates a new pricelist with a discount of $2500.
+Add a button that appears when it is the first time that the customer purchase a motorcycle.
+This button only appears in quotations. 
+When the button is pressed automatically the pricelist is applied to the motorcycles.
     """,
-    "version": "0.1",
+    "version": "1.0",
     "category": "Kauil/Discount",
     "license": "OPL-1",
     "depends": ["sale_management"],
@@ -15,7 +18,6 @@ This Module is used to show a discount when a new customer purchase a motorcycle
         'data/discount_data.xml',
         'views/sale_order_inherit.xml'
     ],
-    "demo": [],
     "author": "kauil-motors",
     "website": "www.odoo.com",
     "application": True,

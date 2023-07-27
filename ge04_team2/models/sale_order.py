@@ -1,31 +1,28 @@
 from odoo import api, fields, models
 
 
-class ge04Team2(models.Model):
+class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     is_new_customer = fields.Boolean(compute="_compute_first_purchase")
 
+    def _calculate_is_new_customer(self, customer):
+        is_new_customer = True
+        partner = customer.partner_id.id
+        sale_orders = self.env['sale.order'].search(
+            [('partner_id', '=', partner)])
+        order_lines = sale_orders.filtered(
+            lambda r: r.type_name == 'Sales Order').mapped('order_line')
+        products = order_lines.mapped('product_id')
+        for i in products:
+            if i.detailed_type == "motorcycle":
+                is_new_customer = False
+        return is_new_customer
+
     @api.depends('partner_id')
     def _compute_first_purchase(self):
         for record in self:
-            record.is_new_customer = True
-
-            partner = record.partner_id.id
-            sale_orders = self.env['sale.order'].search(
-                [('partner_id', '=', partner)])
-
-            order_lines = sale_orders.filtered(
-                lambda r: r.type_name == 'Sales Order').mapped('order_line')
-
-            products = order_lines.mapped('product_id')
-
-            print(products)
-
-            for i in products:
-                print(i.detailed_type)
-                if i.detailed_type == "motorcycle":
-                    record.is_new_customer = False
+            record.is_new_customer = self._calculate_is_new_customer(record)
 
     def change_pricelist(self):
         for record in self:

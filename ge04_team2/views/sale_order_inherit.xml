@@ -5,7 +5,6 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-<!--             Use Xpath -->
             <xpath expr="//sheet//div[@name='button_box']" position="inside">
                 <button name="change_pricelist" type="object" class="oe_stat_button" icon="fa-money" attrs="{'invisible':['|',('is_new_customer','=', False),('type_name','!=','Quotation')]}">
                     First purchase
