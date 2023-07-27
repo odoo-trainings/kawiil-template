@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import api, fields, models
 
 
 class StockLot(models.Model):
@@ -18,7 +18,7 @@ class StockLot(models.Model):
             battery = product.battery_capacity if product.battery_capacity else "xl"
             serial = make + model + year + battery
             if not last_serial:
-                return "{}{}".format(serial, "0000001")
+                return "{}{}".format(serial, "00001")
             else:
                 return self.env["stock.lot"].generate_lot_names(last_serial.name, 2)[1]
         else:
