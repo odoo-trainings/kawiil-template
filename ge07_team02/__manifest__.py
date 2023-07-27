@@ -2,8 +2,9 @@
     "name": "GE7: Motorcyle Registry Manufacturing Enhancements",
     "summary": "Motorcyle Registry Manufacturing Enhancements",
     "description": """
-    Motorcycle GE07_team02""",
-    "version": "0.1",
+        This module integrates sales/mrp to motorcycle registry
+    """,
+    "version": "1.0",
     "category": "Kauil/Registry",
     "license": "OPL-1",
     "depends": ["ge06_team02"],
