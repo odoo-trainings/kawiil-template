@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_menu_motorcycle" name="Portal layout : motorcycle menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'motorcycle' or motorcycle" t-attf-class="breadcrumb-item #{'active ' if motorcycle else ''}">
+                <a t-attf-href="/my/motorcycles?{{ keep_query() }}">Motorcycles</a>
+            </li>
+            <li t-if="motorcycle" class="breadcrumb-item active">
+                <span t-field="motorcycle.registry_number"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_motorcycle" name="Show My Motorcycles / My Motorcycles" customize_show="True" inherit_id="portal.portal_my_home" priority="20">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">My Motorcycles</t>
+                <t t-set="url" t-value="'/my/motorcycles'"/>
+                <t t-set="placeholder_count" t-value="'motorcycle_registry_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="portal_my_motorcycles_registry" name="My Motorcycles">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Motorcycles</t>
+            </t>
+            <t t-if="motorcycles" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th class="text-start">Registry Number</th>
+                        <th class="text-start">VIN</th>
+                        <th class="text-start">License Plate</th>
+                        <th class="text-start">Owner ID</th>
+                    </tr>
+                </thead>
+                <t t-foreach="motorcycles" t-as="motorcycle">
+                    <tr>
+                        <td class="text-start"><a t-att-href="motorcycle.get_portal_url()"><t t-out="motorcycle.registry_number"/></a></td>
+                        <td class="text-start"><span t-field="motorcycle.vin"/></td>
+                        <td class="text-start"><span t-field="motorcycle.license_plate"/></td>
+                        <td class="text-start"><span t-field="motorcycle.owner_id"/></td>
+                    </tr>
+                </t>
+            </t>
+            <p t-else="">There are currently no motorcycles for your account.</p>
+        </t>
+    </template>
+
+    <template id="motorcycle_portal_template" name="Motorcycle Registry Portal Template" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="replace">
+            <t t-set="o_portal_fullwidth_alert" groups="sales_team.group_sale_salesman">
+                <!-- Uses backend_url provided in rendering values -->
+                <t t-call="portal.portal_back_in_edit_mode"/>
+            </t>
+            <div class="container mt16 o_portal_sale_sidebar">
+                <!-- Page content -->
+                <div id="motorcycle_content" class="row">
+                    <div class="col">
+                        <section class="py-4 py-xl-5">
+                            <div class="container">
+                                <div class="bg-dark border rounded border-0 border-dark overflow-hidden">
+                                    <div class="row g-0">
+                                        <div class="col-md-6 py-5">
+                                            <div class="text-white p-4 p-md-5">
+                                                <h1 class="display-4 fw-bold text-white mb-3">About this product</h1>
+                                            </div>
+                                            <div class="row g-0 px-3 px-md-4">
+                                                <div class="col-12 my-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                            <h2 class="text-white">Registry Number</h2>
+                                                            <h2 class="text-primary"><t t-esc="motorcycle.registry_number"></t></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 my-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                            <h2 class="text-white">Make</h2>
+                                                            <h2 class="text-primary"><t t-esc="motorcycle.make"></t></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 my-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                            <h2 class="text-white">Model</h2>
+                                                            <h2 class="text-primary"><t t-esc="motorcycle.model"></t></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 my-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                            <h2 class="text-white">Property Of:</h2>
+                                                            <h2 class="text-primary"><t t-esc="motorcycle.owner_id.name"></t></h2>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 order-first order-md-last" style="min-height: 250px;">
+                                            <img class="w-100 h-100" style="object-fit: cover;" t-if="motorcycle.picture" t-att-src="image_data_uri(motorcycle.picture)"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>
