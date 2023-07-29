@@ -1,3 +1,5 @@
+import base64
+
 from odoo import http
 from odoo.http import request
 from odoo.osv.expression import AND, OR
@@ -73,7 +75,6 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         values.update(
             {
                 "motorcycles": motorcycles.sudo(),
-                "page_name": "motorcycle",
                 "pager": pager_values,
                 "default_url": url,
             }
@@ -105,7 +106,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
             search=search, search_in=search_in, **kwargs
         )
 
-        values.update({"searchbar_inputs": searchbar_inputs, "search_in": search_in})
+        values.update({"page_name": "motorcycles", "searchbar_inputs": searchbar_inputs, "search_in": search_in})
         request.session["motorcycles"] = values["motorcycles"].ids[:100]
         return request.render("ge08_team02.portal_my_motorcycles_registry", values)
 
@@ -116,7 +117,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         website=True,
     )
     def portal_motorcycle_page(
-        self, motorcycle, access_token=None, message=False, download=False, **kw
+        self, motorcycle, access_token=None, message=False, **kw
     ):
         try:
             motorcycle_sudo = self._document_check_access(
@@ -131,6 +132,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
             f"&view_type=form"
         )
         values = {
+            "page_name": "motorcycle",
             "motorcycle": motorcycle_sudo,
             "message": message,
             "report_type": "html",
@@ -142,3 +144,55 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         )
 
         return request.render("ge08_team02.motorcycle_portal_template", values)
+
+    @http.route(
+        ['/my/motorcycle/<model("motorcycle.registry"):motorcycle>/edit'],
+        type="http",
+        auth="user",
+        website=True,
+        method=['GET', 'POST']
+    )
+    def portal_motorcycle_edit_page(
+            self, motorcycle, access_token=None, message=False, **kw
+    ):
+        try:
+            motorcycle_sudo = self._document_check_access(
+                "motorcycle.registry", motorcycle.id, access_token=access_token
+            )
+            backend_url = (
+                f"/web#model={motorcycle_sudo._name}"
+                f"&id={motorcycle_sudo.id}"
+                f"&action={motorcycle_sudo._get_portal_return_action().id}"
+                f"&view_type=form"
+            )
+            values = {
+                "page_name": "motorcycle_edit",
+                "motorcycle": motorcycle_sudo,
+                "message": message,
+                "report_type": "html",
+                "backend_url": backend_url,
+            }
+        except (AccessError, MissingError):
+            return request.redirect("/my")
+
+        if request.httprequest.method == 'GET':
+            pass
+        elif request.httprequest.method == 'POST':
+            license_plate = kw.get('license_plate', False)
+            picture = kw.get('picture', False)
+            if license_plate:
+                motorcycle_sudo.write({
+                    'license_plate': license_plate
+                })
+            if picture:
+                motorcycle_sudo.write({
+                    'picture': base64.encodebytes(picture.read())
+                })
+            values.update({
+                'success_message': ['Motorcycle Registry Updated Successfully']
+            })
+        values = self._get_page_view_values(
+            motorcycle_sudo, access_token, values, "motorcycle_edit", False
+        )
+
+        return request.render("ge08_team02.motorcycle_portal_edit", values)

@@ -2,11 +2,14 @@
 <odoo>
     <template id="portal_my_home_menu_motorcycle" name="Portal layout : motorcycle menu entries" inherit_id="portal.portal_breadcrumbs" priority="20">
         <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
-            <li t-if="page_name == 'motorcycle' or motorcycle" t-attf-class="breadcrumb-item #{'active ' if motorcycle else ''}">
+            <li t-if="page_name == 'motorcycles' or page_name == 'motorcycle'" t-attf-class="breadcrumb-item #{'active ' if motorcycle else ''}">
                 <a t-attf-href="/my/motorcycles?{{ keep_query() }}">Motorcycles</a>
             </li>
-            <li t-if="motorcycle" class="breadcrumb-item active">
-                <span t-field="motorcycle.registry_number"/>
+            <li t-if="page_name == 'motorcycle' or motorcycle" class="breadcrumb-item active">
+                <a t-attf-href="/my/motorcycle/{{slug(motorcycle)}}?{{ keep_query() }}"><span t-field="motorcycle.registry_number"/></a>
+            </li>
+            <li t-if="page_name == 'motorcycle_edit'" class="breadcrumb-item active">
+                <a t-attf-href="/my/motorcycle/{{slug(motorcycle)}}/edit">Edit</a>
             </li>
         </xpath>
     </template>
@@ -38,7 +41,7 @@
                 </thead>
                 <t t-foreach="motorcycles" t-as="motorcycle">
                     <tr>
-                        <td class="text-start"><a t-att-href="motorcycle.get_portal_url()"><t t-out="motorcycle.registry_number"/></a></td>
+                        <td class="text-start"><a t-attf-href="/my/motorcycle/{{slug(motorcycle)}}"><t t-out="motorcycle.registry_number"/></a></td>
                         <td class="text-start"><span t-field="motorcycle.vin"/></td>
                         <td class="text-start"><span t-field="motorcycle.license_plate"/></td>
                         <td class="text-start"><span t-field="motorcycle.owner_id"/></td>
@@ -51,10 +54,6 @@
 
     <template id="motorcycle_portal_template" name="Motorcycle Registry Portal Template" inherit_id="portal.portal_sidebar" primary="True">
         <xpath expr="//div[hasclass('o_portal_sidebar')]" position="replace">
-            <t t-set="o_portal_fullwidth_alert" groups="sales_team.group_sale_salesman">
-                <!-- Uses backend_url provided in rendering values -->
-                <t t-call="portal.portal_back_in_edit_mode"/>
-            </t>
             <div class="container mt16 o_portal_sale_sidebar">
                 <!-- Page content -->
                 <div id="motorcycle_content" class="row">
@@ -100,6 +99,13 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div class="col-12 my-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                            <a t-attf-href="/my/motorcycle/{{slug(motorcycle)}}/edit" class="btn btn-info btn-lg">Edit</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6 order-first order-md-last" style="min-height: 250px;">
@@ -113,5 +119,33 @@
                 </div>
             </div>
         </xpath>
+    </template>
+
+    <template id="motorcycle_portal_edit" name="Motorcycle Registry Portal Edit">
+        <t t-call="portal.portal_layout">
+            <div t-if="success_message" class="alert alert-success mt-4" role="alert">
+                <div class="col-lg-12">
+                    <t t-foreach="success_message" t-as="succ"><t t-esc="succ"/><br /></t>
+                </div>
+            </div>
+            <div class="container bg-dark mt-5">
+                <div class="row py-5 px-3">
+                    <div class="col">
+                        <h1 class="display-3 text-light">Motorcycle Edit</h1>
+                        <form method="POST" enctype='multipart/form-data'>
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <label class="form-label text-light w-100">
+                                License Plate
+                                <input name="license_plate" class="form-control" type="text" t-attf-value="{{motorcycle.license_plate}}" />
+                            </label>
+                            <label class="form-label text-light w-100">
+                                Picture<input name="picture" class="form-control" type="file" />
+                            </label>
+                            <button class="btn btn-success btn-lg mt-5" type="submit">Actualizar Información</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </t>
     </template>
 </odoo>
