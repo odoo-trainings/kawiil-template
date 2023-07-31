@@ -1,54 +1,67 @@
 import base64
 
 from odoo import http
+from odoo import SUPERUSER_ID
 from odoo.http import request
-from odoo.osv.expression import AND, OR
+from odoo.exceptions import AccessError, MissingError
 
 from odoo.addons.portal.controllers import portal
 from odoo.addons.portal.controllers.portal import pager as portal_pager
-from odoo.exceptions import AccessError, MissingError, ValidationError
 
 
 class MotorcycleRegistryPortal(portal.CustomerPortal):
+    def _is_admin(self):
+        return (
+            request.env.user.has_group("base.group_erp_manager")
+            or request.env.user.id == SUPERUSER_ID
+        )
+
+    def _prevent_access_from_another_user(self, motorcycle):
+        if request.env.user.partner_id != motorcycle.owner_id and not self._is_admin():
+            raise AccessError(
+                "You do not have access to this motorcycle, because it is not yours."
+            )
+
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         partner = request.env.user.partner_id
         MotorcycleRegistry = request.env["motorcycle.registry"]
-        if "motorcycle_registry_count" in counters:
-            values["motorcycle_registry_count"] = (
-                MotorcycleRegistry.search_count(
-                    self._prepare_motorcycle_registry_domain(partner)
-                )
-                if MotorcycleRegistry.check_access_rights("read", raise_exception=False)
-                else 0
+        if (
+            "motorcycle_registry_count" in counters
+            and MotorcycleRegistry.check_access_rights("read", raise_exception=False)
+        ):
+            values["motorcycle_registry_count"] = MotorcycleRegistry.search_count(
+                self._prepare_motorcycle_registry_domain(partner)
             )
         return values
 
     def _prepare_search_domain(self, search, search_in):
         search_domain = []
-        if search:
-            if search_in in ("all", "registry_number"):
-                search_domain = OR(
-                    [search_domain, [("registry_number", "ilike", search)]]
-                )
-            if search_in in ("all", "license_plate"):
-                search_domain = OR(
-                    [search_domain, [("license_plate", "ilike", search)]]
-                )
-            if search_in in ("all", "vin"):
-                search_domain = OR([search_domain, [("vin", "ilike", search)]])
+        if search and search_in == "all":
+            search_domain = [
+                "|",
+                "|",
+                ("registry_number", "ilike", search),
+                ("license_plate", "ilike", search),
+                ("vin", "ilike", search),
+            ]
+        elif search_in == "registry_number":
+            search_domain = [("registry_number", "ilike", search)]
+        elif search_in == "license_plate":
+            search_domain = [("license_plate", "ilike", search)]
+        elif search_in == "vin":
+            search_domain = [("vin", "ilike", search)]
         return search_domain
 
     def _prepare_motorcycle_registry_domain(
         self, partner, search_in="all", search=None
     ):
-        search_domain = [("owner_id", "=", partner.id)]
-
-        search_domain = AND(
-            [search_domain, self._prepare_search_domain(search, search_in)]
-        )
-
-        return search_domain
+        if not self._is_admin():
+            return [("owner_id", "=", partner.id)] + self._prepare_search_domain(
+                search, search_in
+            )
+        else:
+            return self._prepare_search_domain(search, search_in)
 
     def _prepare_motorcycle_portal_rendering_values(self, page=1, **kwargs):
         MotorcycleRegistry = request.env["motorcycle.registry"]
@@ -57,7 +70,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         values = self._prepare_portal_layout_values()
         domain = self._prepare_motorcycle_registry_domain(
             partner,
-            search=kwargs.get("search", None),
+            search=kwargs.get("search"),
             search_in=kwargs.get("search_in", "all"),
         )
 
@@ -74,7 +87,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
 
         values.update(
             {
-                "motorcycles": motorcycles.sudo(),
+                "motorcycles": motorcycles,
                 "pager": pager_values,
                 "default_url": url,
             }
@@ -106,8 +119,13 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
             search=search, search_in=search_in, **kwargs
         )
 
-        values.update({"page_name": "motorcycles", "searchbar_inputs": searchbar_inputs, "search_in": search_in})
-        request.session["motorcycles"] = values["motorcycles"].ids[:100]
+        values.update(
+            {
+                "page_name": "motorcycles",
+                "searchbar_inputs": searchbar_inputs,
+                "search_in": search_in,
+            }
+        )
         return request.render("ge08_team02.portal_my_motorcycles_registry", values)
 
     @http.route(
@@ -119,6 +137,7 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
     def portal_motorcycle_page(
         self, motorcycle, access_token=None, message=False, **kw
     ):
+        self._prevent_access_from_another_user(motorcycle)
         try:
             motorcycle_sudo = self._document_check_access(
                 "motorcycle.registry", motorcycle.id, access_token=access_token
@@ -150,11 +169,12 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         type="http",
         auth="user",
         website=True,
-        method=['GET', 'POST']
+        method=["GET", "POST"],
     )
     def portal_motorcycle_edit_page(
-            self, motorcycle, access_token=None, message=False, **kw
+        self, motorcycle, access_token=None, message=False, **kw
     ):
+        self._prevent_access_from_another_user(motorcycle)
         try:
             motorcycle_sudo = self._document_check_access(
                 "motorcycle.registry", motorcycle.id, access_token=access_token
@@ -175,22 +195,18 @@ class MotorcycleRegistryPortal(portal.CustomerPortal):
         except (AccessError, MissingError):
             return request.redirect("/my")
 
-        if request.httprequest.method == 'GET':
+        if request.httprequest.method == "GET":
             pass
-        elif request.httprequest.method == 'POST':
-            license_plate = kw.get('license_plate', False)
-            picture = kw.get('picture', False)
+        elif request.httprequest.method == "POST":
+            license_plate = kw.get("license_plate", False)
+            picture = kw.get("picture", False)
             if license_plate:
-                motorcycle_sudo.write({
-                    'license_plate': license_plate
-                })
+                motorcycle_sudo.write({"license_plate": license_plate})
             if picture:
-                motorcycle_sudo.write({
-                    'picture': base64.encodebytes(picture.read())
-                })
-            values.update({
-                'success_message': ['Motorcycle Registry Updated Successfully']
-            })
+                motorcycle_sudo.write({"picture": base64.encodebytes(picture.read())})
+            values.update(
+                {"success_message": ["Motorcycle Registry Updated Successfully"]}
+            )
         values = self._get_page_view_values(
             motorcycle_sudo, access_token, values, "motorcycle_edit", False
         )

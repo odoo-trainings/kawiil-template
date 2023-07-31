@@ -91,6 +91,16 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <t t-if="motorcycle.license_plate">
+                                                    <div class="col-12 my-2">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">
+                                                                <h2 class="text-white">License Plate</h2>
+                                                                <h2 class="text-primary"><t t-esc="motorcycle.license_plate"></t></h2>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </t>
                                                 <div class="col-12 my-2">
                                                     <div class="d-flex align-items-center">
                                                         <div class="d-flex flex-grow-0 justify-content-between align-items-xxl-center w-100">

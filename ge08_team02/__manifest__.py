@@ -7,6 +7,7 @@
        - List Motorcycle
        - Search by VIN, Registry Number, License Plate
        - See Motorcycle Info
+       - Edit your motorcycle picture and license plate
     """,
     "version": "1.0",
     "category": "Kauil/Registry",
