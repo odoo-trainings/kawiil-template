@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class SaleOrder(models.Model):
@@ -22,6 +23,12 @@ class SaleOrder(models.Model):
             record.pricelist_id = self.env.ref(
                 'ge04_team2.discount_first_purchase')
             self.action_update_prices()
+
+    def action_update_prices(self):
+        if (self.pricelist_id == self.env.ref(
+                'ge04_team2.discount_first_purchase') and self.is_new_customer == False):
+            raise ValidationError("You are not a new customer")
+        super().action_update_prices()
 
     def _get_update_prices_lines(self):
         """ Hook to exclude specific lines which should not be updated based on price list recomputation """
